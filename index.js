@@ -1,19 +1,10 @@
 const horariosPosibles = [
-  "9:00", "9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", 
+  "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", 
   "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", 
-  "17:00", "17:30", "18:00", "18:30", "19:00"
+  "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00"
 ];
 
-/**
- *  POSIBLE SOLUCION
- *  1. Recorrer el arrelo de posbiles horarios
- *  2. Si para cada elemento, y su siguiente elemento aparecen dentro del horario ocupado de 
- *    el total de maestros, significa que esos dos elementos no estan disponibles, de lo contrario 
- *    si estan dispoibles
- */
-
-//Obtener los horarios ocupados de los maestros
-let horariosOcupados = [
+const horariosMaestros = [
   {
     maestro: 'Diego Emanuel Salinas Bernal',
     clase: 'Programacion Visual',
@@ -28,7 +19,29 @@ let horariosOcupados = [
   },
 ];
 
-const totalMaestros = 3;
+const horariosClasesMuestra = [
+    {
+        day: 'Lunes',
+        horarios: [
+            '09:00',
+            '09:30',
+            '10:00'
+        ]
+    },
+    {
+        day: 'Lunes',
+        horarios: [
+            '17:30',
+            '18:00',
+            '18:30'
+        ]
+    },
+
+];
+
+let horariosOcupados = [...horariosMaestros];
+
+const totalMaestros = horariosMaestros.length;
 
 for (let i = 0; i < horariosPosibles.length - 2; i++) {
   const inicioDeClase = horariosPosibles[i];
@@ -36,6 +49,20 @@ for (let i = 0; i < horariosPosibles.length - 2; i++) {
   const finalDeClase = horariosPosibles[i + 2];
 
   let count = 0;
+
+  for(let k = 0; k < horariosClasesMuestra.length; k++){
+    const horarios = horariosClasesMuestra[k].horarios;
+
+    if(
+        horarios.includes(inicioDeClase) && 
+        horarios.includes(mitadDeClase) && 
+        horarios.includes(finalDeClase)
+    ){
+      count = totalMaestros;
+    }
+  }
+
+
   
   for (let j = 0; j < horariosOcupados.length; j++) {
     const horariosMaestro = horariosOcupados[j].horarios;
@@ -46,10 +73,10 @@ for (let i = 0; i < horariosPosibles.length - 2; i++) {
       horariosMaestro.includes(inicioDeClase)
     ) {
       const ultimaHora = horariosMaestro.length - 1;
-      if(horariosMaestro[0] == finalDeClase){
+      if(horariosMaestro[0] === finalDeClase){
         continue;
       }
-      if(horariosMaestro[ultimaHora] == inicioDeClase){
+      if(horariosMaestro[ultimaHora] === inicioDeClase){
         continue;
       }
       count++;
@@ -62,4 +89,3 @@ for (let i = 0; i < horariosPosibles.length - 2; i++) {
     console.log(`El horario desde ${inicioDeClase} hasta ${finalDeClase} está disponible.`);
   }
 }
-
