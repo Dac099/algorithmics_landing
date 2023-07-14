@@ -4,7 +4,7 @@ const horariosPosibles = [
   "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00"
 ];
 
-const horariosMaestros = [
+const clasesRegulares = [
   {
     maestro: 'Diego Emanuel Salinas Bernal',
     clase: 'Programacion Visual',
@@ -19,7 +19,7 @@ const horariosMaestros = [
   },
 ];
 
-const horariosClasesMuestra = [
+const clasesMuestra = [
     {
         day: 'Lunes',
         horarios: [
@@ -38,54 +38,3 @@ const horariosClasesMuestra = [
     },
 
 ];
-
-let horariosOcupados = [...horariosMaestros];
-
-const totalMaestros = horariosMaestros.length;
-
-for (let i = 0; i < horariosPosibles.length - 2; i++) {
-  const inicioDeClase = horariosPosibles[i];
-  const mitadDeClase = horariosPosibles[i + 1];
-  const finalDeClase = horariosPosibles[i + 2];
-
-  let count = 0;
-
-  for(let k = 0; k < horariosClasesMuestra.length; k++){
-    const horarios = horariosClasesMuestra[k].horarios;
-
-    if(
-        horarios.includes(inicioDeClase) && 
-        horarios.includes(mitadDeClase) && 
-        horarios.includes(finalDeClase)
-    ){
-      count = totalMaestros;
-    }
-  }
-
-
-  
-  for (let j = 0; j < horariosOcupados.length; j++) {
-    const horariosMaestro = horariosOcupados[j].horarios;
-    
-    if (
-      horariosMaestro.includes(mitadDeClase) ||
-      horariosMaestro.includes(finalDeClase) ||
-      horariosMaestro.includes(inicioDeClase)
-    ) {
-      const ultimaHora = horariosMaestro.length - 1;
-      if(horariosMaestro[0] === finalDeClase){
-        continue;
-      }
-      if(horariosMaestro[ultimaHora] === inicioDeClase){
-        continue;
-      }
-      count++;
-    }
-  }
-  
-  if (count === totalMaestros) {
-    console.log(`El horario desde ${inicioDeClase} hasta ${finalDeClase} no está disponible.`);
-  } else {
-    console.log(`El horario desde ${inicioDeClase} hasta ${finalDeClase} está disponible.`);
-  }
-}
