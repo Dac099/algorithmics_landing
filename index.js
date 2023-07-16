@@ -176,5 +176,21 @@ function obtenerHorariosDisponibles(clases_muestra, clases_regulares, horario_la
     total_de_clases.push(...clases_regulares);
   }
 
-  
+  for(let i = 0; i < horario_laboral.length - 2; i++){
+    const inicio_clase = horario_laboral[i];
+    const mitad_clase = horario_laboral[i + 1];
+    const final_clase = horario_laboral[i + 2];
+
+    for(let j = 0; j < total_de_clases; j++){
+      
+    }
+    
+    if(incidencias.length !== total_maestros){
+      horarios_disponibles.push(`${inicio_clase} - ${final_clase}`);
+    }
+  }
+
+  return horarios_disponibles;
 }
+
+console.log(obtenerHorariosDisponibles(clases_muestra, clases_regulares, horario_laboral));
