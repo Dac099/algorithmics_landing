@@ -90,17 +90,17 @@ const clases_muestra = [
   {
     date: "Jueves, 13 de Julio",
     hours: [
-      "17:30",
-      "18:00",
-      "18:30"
+      "09:30",
+      "10:00",
+      "10:30"
     ],
   },
   {
     date: "Jueves, 13 de Julio",
     hours: [
-      "16:30",
-      "17:00",
-      "17:30"
+      "12:00",
+      "12:30",
+      "13:00"
     ],
   },
 ];
@@ -129,64 +129,105 @@ const clases_muestra = [
  */
 
 /**
- * APLICANDO LA SOLUCIÓN:
- * 1. Crear arreglo "total_de_clases" y el arreglo "horarios_disponibles".
+ * FILTRANDO LOS HORARIOS DISPONIBLES A PARTIR DE LAS CLASES REGULARES:
+ * 1. Crear arreglo "horarios_disponibles".
  * 2. Crear variable "total_de_maestros"
  * 3. Crear variable "incidencias"
+ * 4. Verificar que el arreglo clases_regulares no este vacío
+ * 5. Si no está vacío, recorrer el arreglo horario_laboral 
+ * 6. Crear 3 variables:
+ *  6.1 inicio_clase: es el elemento i
+ *  6.2 mital_clase: es el elemento i + 1
+ *  6.3 final_clase: es el elemento i + 2
+ * 7. Recorrer el arreglo de clases regulares
+ * 8. Crear variable horario_clase que almacene las horas de la clase
+ * 9. Verificar si inicio_clase, mitad_clase, final_clase se encuentran dentro de horario_clase
+ * 10. Si inicio_clase es igual al ultimo elemento de horario_clase continuamos con la siguiente iteración
+ * 11. Si final_clase es igual al primer elemento de horario_clase continuamos con la siguiente iteración
+ * 12. Si no se cumplen las condiciones anteriores, entonces se aumenta en 1 la variable incidencias
+ * 13. Si el número de incidencias es menor al total_maestros, entonces verificamos si inicio_clase, mitad_clase y final_clase
+       existen dentro del arreglo horas_restantes. Si no existen los agregamos.
  * 
- * 
- * 4. Verificar que el arreglo clases_muestra no esté vacío, si no
- *  está vacío, entonces copiar sus elementos a total_de_clases.
- * 
- * 5. Verificar que el arreglo clases_regulares no esté vacío, si no
- *  está vacío, entonces copiar sus elementos en el arreglo total_de_clases.
- * 
- * 6. Recorrer el arreglo horario_laboral, como se indica al inicio
- * 
- * 7. Tomando los elementos [i, i + 1, i + 2] del arreglo, los renombramos 
- *  como "inicio_clase", "mitad_clase", "final_clase" respectivamente
- * 
- * 8. Filtrar el arreglo total_de_clases, en función de las clases que incluyan
- *  "inicio_clase", "mitad_clase", "final_clase" en su campo hours.
- *  8.1 Aplicando las razones por las que una clase esté disponible
- * 
- * 9. Las clases filtradas las asignamos a la variable incidencias
- * 
- * 10. Si el número de incidencias es igual al número total de maestros,
- *  entonces, el elemento de la iteración (la hora) no esta disponible.
- * 
- * 11. Si el número de incidencias es distinto al número total de maestros, 
- *  entonces es un horario disponible y lo almacenamos en el arreglo "horarios_disponibles"
- * 
- * 12. Retornamos el arreglo horarios disponibles
+ * FILTRANDO LOS HORARIOS PARA LAS CLASES MUESTRA:
+ * A partir del arrelo de horas_restantes filtramos las clases muestra existentes siguiendo los pasos anteriones.
  */
 
 function obtenerHorariosDisponibles(clases_muestra, clases_regulares, horario_laboral){
-  const total_de_clases = [];
-  const horarios_disponibles = [];
+  let horarios_disponibles = [];
+  const horas_restantes = [];
   //TODO: El total de maestros es igual a la longitud de la colección "instructors" de firestore
   const total_maestros = 2;
-  let incidencias = 0;
+  
+  if(clases_regulares.length > 0){      
+    for(let i = 0; i < horario_laboral.length - 2; i++){
+      const inicio_clase = horario_laboral[i];
+      const mitad_clase = horario_laboral[i + 1]
+      const final_clase = horario_laboral[i + 2];
+      let incidencias = 0;
+  
+      for(let j = 0; j < clases_regulares.length; j++){
+        const horario_clase = clases_regulares[j].hours;
+        const final_horario_clase = horario_clase[horario_clase.length - 1];
+        const inicio_horario_clase = horario_clase[0];
+        
+        if(horario_clase.includes(inicio_clase) || horario_clase.includes(final_clase)){
+          if(inicio_clase === final_horario_clase){
+            continue;
+          }
+
+          if(final_clase === inicio_horario_clase){
+            continue;
+          }
+
+          incidencias += 1;
+        }
+      }
+      
+      if(incidencias < total_maestros){
+        if(!horas_restantes.includes(inicio_clase)){
+          horas_restantes.push(inicio_clase);
+        }
+
+        if(!horas_restantes.includes(mitad_clase)){
+          horas_restantes.push(mitad_clase);
+        }
+
+        if(!horas_restantes.includes(final_clase)){
+          horas_restantes.push(final_clase);
+        }
+      }
+    }
+  }
 
   if(clases_muestra.length > 0){
-    total_de_clases.push(...clases_muestra);
-  }
+    for(let i = 0; i < horas_restantes.length - 2; i++){
+      const inicio_clase = horas_restantes[i];
+      const mitad_clase = horas_restantes[i + 1];
+      const final_clase = horas_restantes[i + 2];
+      let control = true;
 
-  if(clases_regulares.length > 0){
-    total_de_clases.push(...clases_regulares);
-  }
+      for(let j = 0; j < clases_muestra.length; j++){
+        const horario = clases_muestra[j].hours;
+        const inicio_horario = horario[0];
+        const final_horario = horario[horario.length - 1];
 
-  for(let i = 0; i < horario_laboral.length - 2; i++){
-    const inicio_clase = horario_laboral[i];
-    const mitad_clase = horario_laboral[i + 1];
-    const final_clase = horario_laboral[i + 2];
+        if(horario.includes(inicio_clase) || horario.includes(final_clase)){
+          if(inicio_clase === final_horario){
+            continue;
+          }
 
-    for(let j = 0; j < total_de_clases; j++){
-      
-    }
-    
-    if(incidencias.length !== total_maestros){
-      horarios_disponibles.push(`${inicio_clase} - ${final_clase}`);
+          if(final_clase === inicio_horario){
+            continue;
+          }
+
+          control = false;
+        }
+
+      }
+
+      if(control){
+        horarios_disponibles.push(inicio_clase + ' - ' + final_clase);
+      }
     }
   }
 
