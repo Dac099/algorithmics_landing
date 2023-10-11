@@ -1,91 +1,11 @@
-const day = [
-  "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", 
-  "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", 
-  "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00"
-];
+import { 
+  TOTAL_INSTRUCTORS,
+  lessons,
+  trial_lessons,
+  day
+} from "./data.js";
 
-const lessons = [
-  {
-    day: "Jueves",
-    hours: [
-      "17:30",
-      "18:00",
-      "18:30",
-      "19:00"
-    ],
-    instructor: "Diego",
-    lesson_name: "Python Start"
-  },
-  {
-    day: "Jueves",
-    hours: [
-      "17:30",
-      "18:00",
-      "18:30",
-      "19:00"
-    ],
-    instructor: "David",
-    lesson_name: "Diseño de videojuegos"
-  },
-  {
-    day: "Jueves",
-    hours: [
-      "19:00",
-      "19:30",
-      "20:00",
-      "20:30"
-    ],
-    instructor: "David",
-    lesson_name: "Diseño de videojuegos"
-  },
-  {
-    day: "Jueves",
-    hours: [
-      "16:00",
-      "16:30",
-      "17:00",
-      "17:30"
-    ],
-    instructor: "David",
-    lesson_name: "Diseño de web"
-  },
-  {
-    day: "Jueves",
-    hours: [
-      "16:00",
-      "16:30",
-      "17:00",
-      "17:30"
-    ],
-    instructor: "Diego",
-    lesson_name: "Python Start"
-  },
-];
-
-const trial_lessons = [
-  {
-    date: "Jueves, 13 de Julio",
-    hours: [
-      "09:30",
-      "10:00",
-      "10:30"
-    ],
-  },
-  {
-    date: "Jueves, 13 de Julio",
-    hours: [
-      "12:00",
-      "12:30",
-      "13:00"
-    ],
-  },
-];
-
-const TOTAL_INSTRUCTORS = 2; //Bring the amount of instructors from firestore
-let total_hours = [...day];
-
-//Remove hours of the scheduled trial lessons from the day
-if(trial_lessons.length > 0){
+function excludeTrialLessons(trial_lessons, total_hours){
   trial_lessons.forEach(lesson => {
     const first_hour = lesson.hours[0];
 
@@ -96,12 +16,12 @@ if(trial_lessons.length > 0){
   });
 }
 
-//Remove hours of the regular lessons from the day
-if(lessons.length > 0){
+function excludeLessons(lessons, total_hours, total_instructors){
   const lessons_hours = [];
   const string_hours = [];
   const unavailable_hours = [];
   const repeated_hours = {};
+  const hours_to_delete = [];
 
   //Get the hours for each lesson
   lessons.forEach(lesson => {
@@ -120,17 +40,45 @@ if(lessons.length > 0){
 
   //Get the first element of the array of hours
   for(const [key, value] of Object.entries(repeated_hours)){
-    if(value >= TOTAL_INSTRUCTORS){
+    if(value >= total_instructors){
       const hours = key.split('-');
       unavailable_hours.push(hours[0]);
     }
   }
 
-  //Remove the unavailable hours from the day
+  //Get the hours to remove from the day
   unavailable_hours.forEach(unavailable_hour => {
     const start_hour = total_hours.findIndex(hour => hour === unavailable_hour) - 1;
-    total_hours.splice(start_hour, 4);
-  });
-}
-console.log(total_hours);
+    const final_hour = start_hour + 4
 
+    for(let i = start_hour; i < final_hour; i++){
+      if(!hours_to_delete.includes(total_hours[i])){
+        hours_to_delete.push(total_hours[i]);
+      }
+    }
+  });
+
+  //Delete the element from day that are included in hours_to_delete array
+  hours_to_delete.forEach(target => {
+    if(total_hours.includes(target)){
+      const index_hour = total_hours.findIndex(hour => hour === target);
+      total_hours.splice(index_hour, 1);
+    }
+  })
+}
+
+function getAvailableHours(trial_lessons, lessons, day, total_instructors){
+  let total_hours = [...day];
+  
+  if(trial_lessons.length > 0){
+    excludeTrialLessons(trial_lessons, total_hours);
+  }
+
+  if(lessons.length > 0){
+    excludeLessons(lessons, total_hours, total_instructors);
+  }
+
+  return total_hours;
+}
+
+console.log(getAvailableHours(trial_lessons,lessons,day,TOTAL_INSTRUCTORS));
