@@ -81,17 +81,56 @@ const trial_lessons = [
   },
 ];
 
-const TOTAL_INSTRUCTORS = 2; //Traer el número desde firebase
-let total_hours = day;
+const TOTAL_INSTRUCTORS = 2; //Bring the amount of instructors from firestore
+let total_hours = [...day];
 
+//Remove hours of the scheduled trial lessons from the day
 if(trial_lessons.length > 0){
-  trial_lessons.map(lesson => {
+  trial_lessons.forEach(lesson => {
     const first_hour = lesson.hours[0];
-    const last_hour = lesson.hours[lesson.hours.length - 1];
 
     if(total_hours.includes(lesson.hours[0])){
-      const start_hour = total_hours.findIndex(hour => hour === first_hour);
-      const end_hour = total_hours.findIndex(hour => hour === last_hour)
+      const start_hour = total_hours.findIndex(hour => hour === first_hour) - 1;
+      total_hours.splice(start_hour, 3);
     }
-  })
+  });
 }
+
+//Remove hours of the regular lessons from the day
+if(lessons.length > 0){
+  const lessons_hours = [];
+  const string_hours = [];
+  const unavailable_hours = [];
+  const repeated_hours = {};
+
+  //Get the hours for each lesson
+  lessons.forEach(lesson => {
+    lessons_hours.push(lesson.hours);
+  });
+  
+  //Transform each array of hours into a string
+  lessons_hours.forEach(lesson => {
+    string_hours.push(lesson.join('-'));
+  });
+
+  //Count how many times a string is repeated
+  string_hours.forEach(string => {
+    repeated_hours[string] = (repeated_hours[string] || 0) + 1;
+  });
+
+  //Get the first element of the array of hours
+  for(const [key, value] of Object.entries(repeated_hours)){
+    if(value >= TOTAL_INSTRUCTORS){
+      const hours = key.split('-');
+      unavailable_hours.push(hours[0]);
+    }
+  }
+
+  //Remove the unavailable hours from the day
+  unavailable_hours.forEach(unavailable_hour => {
+    const start_hour = total_hours.findIndex(hour => hour === unavailable_hour) - 1;
+    total_hours.splice(start_hour, 4);
+  });
+}
+console.log(total_hours);
+
