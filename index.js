@@ -9,9 +9,19 @@ function excludeTrialLessons(trial_lessons, total_hours){
   trial_lessons.forEach(lesson => {
     const first_hour = lesson.hours[0];
 
-    if(total_hours.includes(lesson.hours[0])){
-      const start_hour = total_hours.findIndex(hour => hour === first_hour) - 1;
-      total_hours.splice(start_hour, 3);
+    if(total_hours.includes(first_hour)){
+
+      if(first_hour === '09:00'){
+  
+        const start_hour = total_hours.findIndex(hour => hour === first_hour);
+        total_hours.splice(start_hour, 2);
+
+      }else{
+
+        const start_hour = total_hours.findIndex(hour => hour === first_hour) - 1;
+        total_hours.splice(start_hour, 3);
+        
+      }
     }
   });
 }
